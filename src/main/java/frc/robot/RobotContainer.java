@@ -28,8 +28,8 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
   // Retained command references
-  private final Command m_driveFullSpeed = Commands.runOnce(() -> m_robotDrive.setMaxOutput(1));
-  private final Command m_driveHalfSpeed = Commands.runOnce(() -> m_robotDrive.setMaxOutput(0.5));
+  private final Command m_driveFullSpeed = Commands.runOnce(() -> m_robotDrive.setMaxOutput(0.4));
+  private final Command m_driveHalfSpeed = Commands.runOnce(() -> m_robotDrive.setMaxOutput(0.2));
 
   // The driver's controller
 //   CommandXboxController m_driverController =

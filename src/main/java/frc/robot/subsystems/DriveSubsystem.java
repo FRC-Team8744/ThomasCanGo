@@ -14,6 +14,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 // import frc.robot.ExampleSmartMotorController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -61,10 +62,17 @@ public class DriveSubsystem extends SubsystemBase {
   
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
+    // Clear all previous settings from other programs.
+    leftFrontSparkMax.restoreFactoryDefaults();
+    leftRearSparkMax.restoreFactoryDefaults();
+    rightFrontSparkMax.restoreFactoryDefaults();
+    rightRearSparkMax.restoreFactoryDefaults();
+
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
     m_rightMotors.setInverted(true);
+    // rightFrontSparkMax.setInverted(true);
 
     // You might need to not do this depending on the specific motor controller
     // that you are using -- contact the respective vendor's documentation for
@@ -73,8 +81,11 @@ public class DriveSubsystem extends SubsystemBase {
 
     // m_leftFollower.follow(m_leftLeader);
     // m_rightFollower.follow(m_rightLeader);
-    leftRearSparkMax.follow(leftFrontSparkMax);
-    rightRearSparkMax.follow(rightFrontSparkMax);
+    // leftRearSparkMax.follow(leftFrontSparkMax);
+    // rightRearSparkMax.follow(rightFrontSparkMax);
+
+    m_leftEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerRevolution);
+    m_rightEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerRevolution);
 
     // m_leftLeader.setPID(DriveConstants.kp, 0, 0);
     // m_rightLeader.setPID(DriveConstants.kp, 0, 0);
@@ -86,6 +97,14 @@ public class DriveSubsystem extends SubsystemBase {
     m_rightPidController.setP(DriveConstants.kp);
     m_rightPidController.setI(0);
     m_rightPidController.setD(0);
+  }
+
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("m_leftEncoder", m_leftEncoder.getPosition());
+    SmartDashboard.putNumber("m_rightEncoder", m_rightEncoder.getPosition());
+    SmartDashboard.putNumber("leftEncoder(Inch)", m_leftEncoder.getPosition()/DriveConstants.kConvertInchToMeter);
+    SmartDashboard.putNumber("rightEncoder(Inch)", m_rightEncoder.getPosition()/DriveConstants.kConvertInchToMeter);
   }
 
   /**
@@ -115,7 +134,7 @@ public class DriveSubsystem extends SubsystemBase {
     //     m_feedforward.calculate(right.velocity));
 
     m_leftPidController.setReference(left.position + m_feedforward.calculate(left.velocity), ControlType.kPosition);
-    m_rightPidController.setReference(right.position + m_feedforward.calculate(right.velocity), ControlType.kPosition);
+    m_rightPidController.setReference(-(right.position + m_feedforward.calculate(right.velocity)), ControlType.kPosition);  // !!! I should not have to invert the right side.  This will mess up a bunch of stuff with Ramsete.  Must be a bug somewhere.
   }
 
   /**
@@ -146,6 +165,10 @@ public class DriveSubsystem extends SubsystemBase {
   public void resetEncoders() {
     // m_leftLeader.resetEncoder();
     // m_rightLeader.resetEncoder();
+    // Make sure we start with zero velocity
+    m_leftPidController.setReference(0.0, ControlType.kPosition);
+    m_rightPidController.setReference(0.0, ControlType.kPosition);
+
     m_leftEncoder.setPosition(0);
     m_rightEncoder.setPosition(0);
 }

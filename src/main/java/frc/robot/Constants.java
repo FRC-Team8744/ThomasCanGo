@@ -16,21 +16,33 @@ public final class Constants {
   public static final class DriveConstants {
     public static final int kLeftFrontCAN = 9;
     public static final int kLeftRearCAN = 10;
-    public static final int kRightFrontCAN = 8;
-    public static final int kRightRearCAN = 7;
+    public static final int kRightFrontCAN = 7;
+    public static final int kRightRearCAN = 8;
+
+    public static final double kConvertInchToMeter = 0.0254;
+
+    public static final double kWheelDiameterInches = 6.0;
+    public static final double kGearRatio = 8.45;
+    public static final double kWheelDiameterMeters = kWheelDiameterInches * kConvertInchToMeter;
+    // public static final double kEncoderDistancePerPulse =
+    //     // Assumes the encoders are directly mounted on the wheel shafts
+    //     (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
+    public static final double kUnitsPerRotation = (kWheelDiameterMeters * Math.PI);  // !!! Use this value in SysID!
+    public static final double kEncoderDistancePerRevolution = (kWheelDiameterMeters * Math.PI) / kGearRatio;
 
     // These are example values only - DO NOT USE THESE FOR YOUR OWN ROBOT!
     // These characterization values MUST be determined either experimentally or theoretically
     // for *your* robot's drive.
     // The SysId tool provides a convenient method for obtaining these values for your robot.
-    public static final double ksVolts = 1;
-    public static final double kvVoltSecondsPerMeter = 0.8;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.15;
+    // Data from SysId file: C:\Users\FabLab9\FRC2024\ThomasCanTrack\sysid_data\sysid_data20231029-134230.json
+    public static final double ksVolts = 0.11161;
+    public static final double kvVoltSecondsPerMeter = 2.2496;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.346;
 
     public static final double kp = 1;
 
-    public static final double kMaxSpeedMetersPerSecond = 3;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+    public static final double kMaxSpeedMetersPerSecond = 0.5;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 0.4;
   }
 
   public static final class OIConstants {
