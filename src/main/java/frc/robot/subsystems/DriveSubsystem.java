@@ -6,12 +6,8 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -26,77 +22,30 @@ public class DriveSubsystem extends SubsystemBase {
   private CANSparkMax rightFrontSparkMax = new CANSparkMax(DriveConstants.kRightFrontCAN, MotorType.kBrushless);
   private CANSparkMax rightRearSparkMax = new CANSparkMax(DriveConstants.kRightRearCAN, MotorType.kBrushless);
 
-  // The motors on the left side of the drive.
-  // private final ExampleSmartMotorController m_leftLeader =
-  //     new ExampleSmartMotorController(DriveConstants.kLeftMotor1Port);
-
-  // private final ExampleSmartMotorController m_leftFollower =
-  //     new ExampleSmartMotorController(DriveConstants.kLeftMotor2Port);
+  // Group the motors on each side
   private final MotorControllerGroup m_leftMotors =
       new MotorControllerGroup(leftFrontSparkMax, leftRearSparkMax);
 
-  // The motors on the right side of the drive.
-  // private final ExampleSmartMotorController m_rightLeader =
-  //     new ExampleSmartMotorController(DriveConstants.kRightMotor1Port);
-
-  // private final ExampleSmartMotorController m_rightFollower =
-  //     new ExampleSmartMotorController(DriveConstants.kRightMotor2Port);
   private final MotorControllerGroup m_rightMotors =
       new MotorControllerGroup(rightFrontSparkMax, rightRearSparkMax);
 
-  // The feedforward controller.
-  private final SimpleMotorFeedforward m_feedforward =
-      new SimpleMotorFeedforward(
-          DriveConstants.ksVolts,
-          DriveConstants.kvVoltSecondsPerMeter,
-          DriveConstants.kaVoltSecondsSquaredPerMeter);
-
-  // The robot's drive
+  // The robot's drivetrain
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
   RelativeEncoder m_leftEncoder = leftFrontSparkMax.getEncoder();
   RelativeEncoder m_rightEncoder = rightFrontSparkMax.getEncoder();
 
-  private SparkMaxPIDController m_leftPidController;
-  private SparkMaxPIDController m_rightPidController;
-  
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
-    // Clear all previous settings from other programs.
-    leftFrontSparkMax.restoreFactoryDefaults();
-    leftRearSparkMax.restoreFactoryDefaults();
-    rightFrontSparkMax.restoreFactoryDefaults();
-    rightRearSparkMax.restoreFactoryDefaults();
-
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
     m_rightMotors.setInverted(true);
-    // rightFrontSparkMax.setInverted(true);
-
-    // You might need to not do this depending on the specific motor controller
-    // that you are using -- contact the respective vendor's documentation for
-    // more details.
-    // m_rightFollower.setInverted(true);
-
-    // m_leftFollower.follow(m_leftLeader);
-    // m_rightFollower.follow(m_rightLeader);
-    // leftRearSparkMax.follow(leftFrontSparkMax);
-    // rightRearSparkMax.follow(rightFrontSparkMax);
 
     m_leftEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerRevolution);
     m_rightEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerRevolution);
 
-    // m_leftLeader.setPID(DriveConstants.kp, 0, 0);
-    // m_rightLeader.setPID(DriveConstants.kp, 0, 0);
-    m_leftPidController = leftFrontSparkMax.getPIDController();
-    m_rightPidController = rightFrontSparkMax.getPIDController();
-    m_leftPidController.setP(DriveConstants.kp);
-    m_leftPidController.setI(0);
-    m_leftPidController.setD(0);
-    m_rightPidController.setP(DriveConstants.kp);
-    m_rightPidController.setI(0);
-    m_rightPidController.setD(0);
+    resetEncoders();
   }
 
   @Override
@@ -117,24 +66,15 @@ public class DriveSubsystem extends SubsystemBase {
     m_drive.arcadeDrive(fwd, rot);
   }
 
-  /**
-   * Attempts to follow the given drive states using offboard PID.
+   /**
+   * Drives the robot using arcade controls.
    *
-   * @param left The left wheel state.
-   * @param right The right wheel state.
+   * @param fwd the commanded forward movement
+   * @param rot the commanded rotation
+   * @param sqr are inputs squared?
    */
-  public void setDriveStates(TrapezoidProfile.State left, TrapezoidProfile.State right) {
-    // m_leftLeader.setSetpoint(
-    //     ExampleSmartMotorController.PIDMode.kPosition,
-    //     left.position,
-    //     m_feedforward.calculate(left.velocity));
-    // m_rightLeader.setSetpoint(
-    //     ExampleSmartMotorController.PIDMode.kPosition,
-    //     right.position,
-    //     m_feedforward.calculate(right.velocity));
-
-    m_leftPidController.setReference(left.position + m_feedforward.calculate(left.velocity), ControlType.kPosition);
-    m_rightPidController.setReference(-(right.position + m_feedforward.calculate(right.velocity)), ControlType.kPosition);  // !!! I should not have to invert the right side.  This will mess up a bunch of stuff with Ramsete.  Must be a bug somewhere.
+  public void arcadeDrive(double fwd, double rot, boolean sqr) {
+    m_drive.arcadeDrive(fwd, rot, sqr);
   }
 
   /**
@@ -142,36 +82,33 @@ public class DriveSubsystem extends SubsystemBase {
    *
    * @return the left encoder distance
    */
-  // public double getLeftEncoderDistance() {
-  //   return m_leftLeader.getEncoderDistance();
-  // }
-  // public RelativeEncoder getLeftEncoder() {
-  //   return m_leftEncoder;
-  // }
+  public double getLeftEncoderDistance() {
+    return m_leftEncoder.getPosition();
+  }
 
   /**
    * Returns the right encoder distance.
    *
    * @return the right encoder distance
    */
-  // public double getRightEncoderDistance() {
-  //   return m_rightLeader.getEncoderDistance();
-  // }
-  // public RelativeEncoder getRightEncoder() {
-  //   return m_rightEncoder;
-  // }
+  public double getRightEncoderDistance() {
+    return m_rightEncoder.getPosition();
+  }
 
   /** Resets the drive encoders. */
   public void resetEncoders() {
-    // m_leftLeader.resetEncoder();
-    // m_rightLeader.resetEncoder();
-    // Make sure we start with zero velocity
-    m_leftPidController.setReference(0.0, ControlType.kPosition);
-    m_rightPidController.setReference(0.0, ControlType.kPosition);
-
     m_leftEncoder.setPosition(0);
     m_rightEncoder.setPosition(0);
 }
+
+  /**
+   * Gets the average distance of the two encoders.
+   *
+   * @return the average of the two encoder readings
+   */
+  public double getAverageEncoderDistance() {
+    return (m_leftEncoder.getPosition() + m_rightEncoder.getPosition()) / 2.0;
+  }
 
   /**
    * Sets the max output of the drive. Useful for scaling the drive to drive more slowly.

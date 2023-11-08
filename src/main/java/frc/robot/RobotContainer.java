@@ -4,18 +4,16 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-// import edu.wpi.first.wpilibj.Joystick;
-// import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.DriveDistanceProfiled;
+// import frc.robot.commands.DriveDistProfiled;
+import frc.robot.commands.DriveDistance;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
-// import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -27,15 +25,8 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
-  // Retained command references
-  private final Command m_driveFullSpeed = Commands.runOnce(() -> m_robotDrive.setMaxOutput(0.4));
-  private final Command m_driveHalfSpeed = Commands.runOnce(() -> m_robotDrive.setMaxOutput(0.2));
-
   // The driver's controller
-//   CommandXboxController m_driverController =
-//       new CommandXboxController(OIConstants.kDriverControllerPort);
-    //   public final Joystick m_driverController = new Joystick(OIConstants.kDriverControllerPort);
-    public final CommandJoystick m_driverController = new CommandJoystick(OIConstants.kDriverControllerPort);
+  public final Joystick m_driverController = new Joystick(OIConstants.kDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -62,36 +53,26 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // Drive at half speed when the bumper is held
-    // m_driverController.rightBumper().onTrue(m_driveHalfSpeed).onFalse(m_driveFullSpeed);
-    m_driverController.button(OIConstants.kButtonRightBumper).onTrue(m_driveHalfSpeed).onFalse(m_driveFullSpeed);
-    // new JoystickButton(m_driverController, OIConstants.kButtonRightBumper)
-    //     .onTrue(new InstantCommand(() -> m_robotDrive.setMaxOutput(0.1)))
-    //     .onFalse(new InstantCommand(() -> m_robotDrive.setMaxOutput(0.2)));
+    // Drive at half speed when the right bumper is held
+    new JoystickButton(m_driverController, OIConstants.kButtonRightBumper)
+        .onTrue(new InstantCommand(() -> m_robotDrive.setMaxOutput(0.2)))
+        .onFalse(new InstantCommand(() -> m_robotDrive.setMaxOutput(DriveConstants.kMaxDriveOutput)));
 
-    // Drive forward by 3 meters when the 'A' button is pressed, with a timeout of 10 seconds
-    // m_driverController.a().onTrue(new DriveDistanceProfiled(3, m_robotDrive).withTimeout(10));
-    m_driverController.button(OIConstants.kButtonA).onTrue(new DriveDistanceProfiled(3, m_robotDrive).withTimeout(10));
+    // Drive forward by 1.5 meters when the 'A' button is pressed, with a timeout of 5 seconds
+    new JoystickButton(m_driverController, OIConstants.kButtonA)
+    .onTrue(new DriveDistance(1.5, m_robotDrive).withTimeout(5));
+    
+    // Drive backward by 1.5 meters when the 'B' button is pressed, with a timeout of 5 seconds
+    new JoystickButton(m_driverController, OIConstants.kButtonB)
+    .onTrue(new DriveDistance(-1.5, m_robotDrive).withTimeout(5));
 
-    // Do the same thing as above when the 'B' button is pressed, but defined inline
-    m_driverController
-        // .b()
-        .button(OIConstants.kButtonB)
-        .onTrue(
-            new TrapezoidProfileCommand(
-                    new TrapezoidProfile(
-                        // Limit the max acceleration and velocity
-                        new TrapezoidProfile.Constraints(
-                            DriveConstants.kMaxSpeedMetersPerSecond,
-                            DriveConstants.kMaxAccelerationMetersPerSecondSquared),
-                        // End at desired position in meters; implicitly starts at 0
-                        new TrapezoidProfile.State(3, 0)),
-                    // Pipe the profile state to the drive
-                    setpointState -> m_robotDrive.setDriveStates(setpointState, setpointState),
-                    // Require the drive
-                    m_robotDrive)
-                .beforeStarting(m_robotDrive::resetEncoders)
-                .withTimeout(10));
+    // Drive forward by 1.5 meters when the 'X' button is pressed, with a timeout of 5 seconds
+    // new JoystickButton(m_driverController, OIConstants.kButtonX)
+    // .onTrue(new DriveDistProfiled(1.5, m_robotDrive).withTimeout(5));
+    
+    // Drive backward by 1.5 meters when the 'Y' button is pressed, with a timeout of 5 seconds
+    // new JoystickButton(m_driverController, OIConstants.kButtonY)
+    // .onTrue(new DriveDistProfiled(-1.5, m_robotDrive).withTimeout(5));
   }
 
   /**

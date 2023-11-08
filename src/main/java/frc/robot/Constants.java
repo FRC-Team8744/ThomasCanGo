@@ -30,16 +30,11 @@ public final class Constants {
     public static final double kUnitsPerRotation = (kWheelDiameterMeters * Math.PI);  // !!! Use this value in SysID!
     public static final double kEncoderDistancePerRevolution = (kWheelDiameterMeters * Math.PI) / kGearRatio;
 
-    // These are example values only - DO NOT USE THESE FOR YOUR OWN ROBOT!
-    // These characterization values MUST be determined either experimentally or theoretically
-    // for *your* robot's drive.
-    // The SysId tool provides a convenient method for obtaining these values for your robot.
-    // Data from SysId file: C:\Users\FabLab9\FRC2024\ThomasCanTrack\sysid_data\sysid_data20231029-134230.json
-    public static final double ksVolts = 0.11161;
-    public static final double kvVoltSecondsPerMeter = 2.2496;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.346;
+    public static final double kMoveP = 1;
+    public static final double kMoveI = 0;
+    public static final double kMoveD = 0;
 
-    public static final double kp = 1;
+    public static final double kMaxDriveOutput = 0.4;  // range 0 to 1
 
     public static final double kMaxSpeedMetersPerSecond = 0.5;
     public static final double kMaxAccelerationMetersPerSecondSquared = 0.4;
