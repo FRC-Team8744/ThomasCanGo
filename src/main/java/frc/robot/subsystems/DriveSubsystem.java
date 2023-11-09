@@ -19,6 +19,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 // import frc.robot.ExampleSmartMotorController;
@@ -54,6 +55,9 @@ public class DriveSubsystem extends SubsystemBase {
       new DifferentialDriveKinematics(DriveConstants.kTrackwidthMeters);
 
   final DifferentialDriveOdometry m_odometry;
+
+  // Create Field2d for robot and trajectory visualizations.
+  public Field2d m_field;
 
   // Gains are from a SysId check of Thomas - Don't change!
   // private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter);
@@ -98,6 +102,13 @@ public class DriveSubsystem extends SubsystemBase {
     m_odometry =
         new DifferentialDriveOdometry(
             m_gyro.getRotation2d(), getLeftEncoderPosition(), getRightEncoderPosition());
+
+    // Create and push Field2d to SmartDashboard.
+    m_field = new Field2d();
+    SmartDashboard.putData(m_field);
+    
+    // Update robot position on Field2d.
+    m_field.setRobotPose(getPose());
   }
 
   @Override
@@ -106,6 +117,18 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Right Encoder (M)", getRightEncoderPosition());
 
     updateOdometry();
+        
+    // Update robot position on Field2d.
+    m_field.setRobotPose(getPose());
+  }
+
+  /**
+   * Returns the currently-estimated pose of the robot.
+   *
+   * @return The pose.
+   */
+  public Pose2d getPose() {
+    return m_odometry.getPoseMeters();
   }
 
   /**
