@@ -21,6 +21,9 @@ public final class Constants {
 
     public static final double kConvertInchToMeter = 0.0254;
 
+    public static final double kTrackwidthInches = 18.5;
+    public static final double kTrackwidthMeters = kTrackwidthInches * kConvertInchToMeter;
+
     public static final double kWheelDiameterInches = 6.0;
     public static final double kGearRatio = 8.45;
     public static final double kWheelDiameterMeters = kWheelDiameterInches * kConvertInchToMeter;
@@ -38,6 +41,15 @@ public final class Constants {
 
     public static final double kMaxSpeedMetersPerSecond = 0.5;
     public static final double kMaxAccelerationMetersPerSecondSquared = 0.4;
+
+    public static final double kVelocityRatio = 1/kGearRatio;  // Motor spins kGearRatio times before output wheel turns once.
+
+    // SysID file used: C:\Users\FabLab9\FRC2024\ThomasCanTrack\sysid_data\sysid_data20231029-134230.json
+    public static final double ksVolts = 0.11161; // Don't change!
+    public static final double kvVoltSecondsPerMeter = 2.2496; // Don't change!
+    public static final double kaVoltSecondsSquaredPerMeter = 0.346; // Don't change!
+
+    public static final double kPDriveVel = 0.001; // Don't change!
   }
 
   public static final class OIConstants {

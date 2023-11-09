@@ -4,23 +4,25 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class DriveDistProfiled extends CommandBase {
   private final DriveSubsystem m_drive;
-  private final TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(0.5, 0.3);
-  ProfiledPIDController m_moveCtrl = new ProfiledPIDController(DriveConstants.kMoveP, DriveConstants.kMoveI, DriveConstants.kMoveD, m_constraints);
-  private double m_output;
-  private double m_distance;
+  private final TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(
+    DriveConstants.kMaxSpeedMetersPerSecond,
+    DriveConstants.kMaxAccelerationMetersPerSecondSquared);
+  private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+  private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
+  private TrapezoidProfile profile;
+
+  private double m_timestep;
   private double m_goalDistance;
 
   /** Creates a new DriveDistProfiled. */
+  // Derived from: https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/trapezoidal-profiles.html#trapezoidal-motion-profiles-in-wpilib
   public DriveDistProfiled(double targetDistance, DriveSubsystem drive) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_drive = drive;
@@ -32,29 +34,25 @@ public class DriveDistProfiled extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_moveCtrl.setTolerance(0.01);  // in meters!
-    m_moveCtrl.setGoal(m_goalDistance);
-    m_moveCtrl.reset(0.0);
+    m_goal = new TrapezoidProfile.State(m_goalDistance, 0);
+    m_timestep = 0;
 
-    // Debug information
-    SmartDashboard.putData("movePID", m_moveCtrl);
+    // Create a motion profile with the given maximum velocity and maximum
+    // acceleration constraints for the next setpoint, the desired goal, and the
+    // current setpoint.
+    profile = new TrapezoidProfile(m_constraints, m_goal, new TrapezoidProfile.State(m_drive.getAverageEncoderDistance(), 0));
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_distance = m_drive.getAverageEncoderDistance();
-    m_output = MathUtil.clamp(m_moveCtrl.calculate(m_distance), -1.0, 1.0);
-    // Send PID output to drivebase
-    m_drive.arcadeDrive(m_output, 0.0, false);
+    m_timestep += 0.02;  // 20ms between scheduler runs
+    // Retrieve the profiled setpoint for the next timestep. This setpoint moves
+    // toward the goal while obeying the constraints.
+    m_setpoint = profile.calculate(m_timestep);
 
-    // Debug information
-    SmartDashboard.putNumber("PID setpoint", m_goalDistance);
-    SmartDashboard.putNumber("PID output", m_output);
-    SmartDashboard.putNumber("PID setpoint error", m_moveCtrl.getPositionError());
-    SmartDashboard.putNumber("PID velocity error", m_moveCtrl.getVelocityError());
-    SmartDashboard.putNumber("PID measurement", m_distance);
-
+    // Send setpoint to offboard controller PID
+    m_drive.setDriveStates(m_setpoint, m_setpoint);
   }
 
   // Called once the command ends or is interrupted.
@@ -66,6 +64,6 @@ public class DriveDistProfiled extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_moveCtrl.atSetpoint();
+    return profile.isFinished(m_timestep);
   }
 }
