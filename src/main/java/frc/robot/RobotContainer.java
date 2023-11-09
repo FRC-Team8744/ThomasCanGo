@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.DriveDistProfiled;
 // import frc.robot.commands.DriveDistProfiled;
 import frc.robot.commands.DriveDistance;
 import frc.robot.subsystems.DriveSubsystem;
@@ -36,8 +37,10 @@ public class RobotContainer {
     // Configure default commands
     // Set the default drive command to split-stick arcade drive
     // m_robotDrive.setDefaultCommand( Commands.run( () -> m_robotDrive.arcadeDrive(-m_driverController.getY(), -m_driverController.getX()), m_robotDrive));
-    m_robotDrive.setDefaultCommand( Commands.run( () -> m_robotDrive.driveVelocity(-m_driverController.getY(), -m_driverController.getX()), m_robotDrive));
-  }
+    m_robotDrive.setDefaultCommand( Commands.run( () -> m_robotDrive.driveVelocity
+      (-m_driverController.getY() * DriveConstants.kMaxSpeedMetersPerSecond,
+       -m_driverController.getX() * DriveConstants.kMaxSpeedMetersPerSecond), m_robotDrive));
+   }
 
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
@@ -52,20 +55,20 @@ public class RobotContainer {
         .onFalse(new InstantCommand(() -> m_robotDrive.setMaxOutput(DriveConstants.kMaxDriveOutput)));
 
     // Drive forward by 1.5 meters when the 'A' button is pressed, with a timeout of 5 seconds
-    new JoystickButton(m_driverController, OIConstants.kButtonA)
-    .onTrue(new DriveDistance(1.5, m_robotDrive).withTimeout(5));
+    // new JoystickButton(m_driverController, OIConstants.kButtonA)
+    // .onTrue(new DriveDistance(1.5, m_robotDrive).withTimeout(5));
     
     // Drive backward by 1.5 meters when the 'B' button is pressed, with a timeout of 5 seconds
-    new JoystickButton(m_driverController, OIConstants.kButtonB)
-    .onTrue(new DriveDistance(-1.5, m_robotDrive).withTimeout(5));
+    // new JoystickButton(m_driverController, OIConstants.kButtonB)
+    // .onTrue(new DriveDistance(-1.5, m_robotDrive).withTimeout(5));
 
     // Drive forward by 1.5 meters when the 'X' button is pressed, with a timeout of 5 seconds
-    // new JoystickButton(m_driverController, OIConstants.kButtonX)
-    // .onTrue(new DriveDistProfiled(1.5, m_robotDrive).withTimeout(5));
+    new JoystickButton(m_driverController, OIConstants.kButtonX)
+    .onTrue(new DriveDistProfiled(1.5, m_robotDrive).withTimeout(5));
     
     // Drive backward by 1.5 meters when the 'Y' button is pressed, with a timeout of 5 seconds
-    // new JoystickButton(m_driverController, OIConstants.kButtonY)
-    // .onTrue(new DriveDistProfiled(-1.5, m_robotDrive).withTimeout(5));
+    new JoystickButton(m_driverController, OIConstants.kButtonY)
+    .onTrue(new DriveDistProfiled(-1.5, m_robotDrive).withTimeout(5));
   }
 
   /**

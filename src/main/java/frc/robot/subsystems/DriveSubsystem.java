@@ -64,6 +64,14 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
+    leftFrontSparkMax.restoreFactoryDefaults();
+    rightFrontSparkMax.restoreFactoryDefaults();
+    leftRearSparkMax.restoreFactoryDefaults();
+    rightRearSparkMax.restoreFactoryDefaults();
+
+    leftRearSparkMax.follow(leftFrontSparkMax);
+    rightRearSparkMax.follow(rightFrontSparkMax);
+
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
@@ -71,15 +79,17 @@ public class DriveSubsystem extends SubsystemBase {
 
     m_leftEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerRevolution);
     m_rightEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerRevolution);
+    m_leftEncoder.setVelocityConversionFactor(DriveConstants.kEncoderVelocityFactor);
+    m_rightEncoder.setVelocityConversionFactor(DriveConstants.kEncoderVelocityFactor);
 
     resetEncoders();
 
     // Set PID coefficients
-    double kP = 6e-5; 
+    double kP = 0.00001;
     double kI = 0;
     double kD = 0; 
     double kIz = 0; 
-    double kFF = 0.000015; 
+    double kFF = 0.00018;
     double kMaxOutput = 1; 
     double kMinOutput = -1;
     // double maxRPM = 5700;
@@ -147,8 +157,20 @@ public class DriveSubsystem extends SubsystemBase {
     // m_leftMotors.setVoltage(leftOutput); // + leftFeedforward);
     // m_rightMotors.setVoltage(rightOutput); // + rightFeedforward);
 
-    m_leftPID.setReference(speeds.leftMetersPerSecond, CANSparkMax.ControlType.kVelocity);
-    m_rightPID.setReference(speeds.rightMetersPerSecond, CANSparkMax.ControlType.kVelocity);
+    // Velocity reference only takes RPM!
+    m_leftPID.setReference(speeds.leftMetersPerSecond/DriveConstants.kEncoderVelocityFactor, CANSparkMax.ControlType.kVelocity);
+    m_rightPID.setReference(-speeds.rightMetersPerSecond/DriveConstants.kEncoderVelocityFactor, CANSparkMax.ControlType.kVelocity);
+
+    m_drive.feed();  // Required!  Feed what?
+
+    SmartDashboard.putNumber("Motor Command", speeds.leftMetersPerSecond);
+    SmartDashboard.putNumber("Motor Out", leftFrontSparkMax.getAppliedOutput());
+    SmartDashboard.putNumber("Follower Out", leftRearSparkMax.getAppliedOutput());
+    SmartDashboard.putNumber("Motor Velocity", m_leftEncoder.getVelocity());
+    SmartDashboard.putNumber("Motor Vel Factor", m_leftEncoder.getVelocityConversionFactor());
+    SmartDashboard.putNumber("Motor Counts", m_leftEncoder.getCountsPerRevolution());
+    SmartDashboard.putBoolean("Left Invert", m_leftEncoder.getInverted());
+    SmartDashboard.putBoolean("Right Invert", m_rightEncoder.getInverted());
   }
 
   /**
@@ -169,8 +191,11 @@ public class DriveSubsystem extends SubsystemBase {
    * @param right The right wheel state.
    */
   public void setDriveStates(TrapezoidProfile.State left, TrapezoidProfile.State right) {
-    m_leftPID.setReference(left.velocity, CANSparkMax.ControlType.kVelocity);
-    m_rightPID.setReference(right.velocity, CANSparkMax.ControlType.kVelocity);
+    // Velocity reference only takes RPM!
+    m_leftPID.setReference(left.velocity/DriveConstants.kEncoderVelocityFactor, CANSparkMax.ControlType.kVelocity);
+    m_rightPID.setReference(-right.velocity/DriveConstants.kEncoderVelocityFactor, CANSparkMax.ControlType.kVelocity);
+
+    m_drive.feed();  // Required!  Feed what?
   }
 
   /** Updates the field-relative position. */

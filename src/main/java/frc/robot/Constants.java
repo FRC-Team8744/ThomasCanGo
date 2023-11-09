@@ -31,7 +31,9 @@ public final class Constants {
     //     // Assumes the encoders are directly mounted on the wheel shafts
     //     (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
     public static final double kUnitsPerRotation = (kWheelDiameterMeters * Math.PI);  // !!! Use this value in SysID!
-    public static final double kEncoderDistancePerRevolution = (kWheelDiameterMeters * Math.PI) / kGearRatio;
+    public static final double kEncoderDistancePerRevolution = (kWheelDiameterMeters * Math.PI) / (kGearRatio);  // Why do we have to square the gear ratio?
+
+    public static final double kEncoderVelocityFactor = kEncoderDistancePerRevolution/60.0; // Convert RPM to meters/second
 
     public static final double kMoveP = 1;
     public static final double kMoveI = 0;
