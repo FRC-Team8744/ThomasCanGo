@@ -59,9 +59,6 @@ public class DriveSubsystem extends SubsystemBase {
   // Create Field2d for robot and trajectory visualizations.
   public Field2d m_field;
 
-  // Gains are from a SysId check of Thomas - Don't change!
-  // private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(ksVolts, kvVoltSecondsPerMeter);
-
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     leftFrontSparkMax.restoreFactoryDefaults();
@@ -84,30 +81,21 @@ public class DriveSubsystem extends SubsystemBase {
 
     resetEncoders();
 
-    // Set PID coefficients
-    double kP = 0.00001;
-    double kI = 0;
-    double kD = 0; 
-    double kIz = 0; 
-    double kFF = 0.00018;
-    double kMaxOutput = 1; 
-    double kMinOutput = -1;
-    // double maxRPM = 5700;
-
+    // Set SparkMax PID coefficients
     // Left
-    m_leftPID.setP(kP);
-    m_leftPID.setI(kI);
-    m_leftPID.setD(kD);
-    m_leftPID.setIZone(kIz);
-    m_leftPID.setFF(kFF);
-    m_leftPID.setOutputRange(kMinOutput, kMaxOutput);
+    m_leftPID.setP(DriveConstants.kP);
+    m_leftPID.setI(DriveConstants.kI);
+    m_leftPID.setD(DriveConstants.kD);
+    m_leftPID.setIZone(DriveConstants.kIz);
+    m_leftPID.setFF(DriveConstants.kFF);
+    m_leftPID.setOutputRange(DriveConstants.kMinOutput, DriveConstants.kMaxOutput);
     // Right
-    m_rightPID.setP(kP);
-    m_rightPID.setI(kI);
-    m_rightPID.setD(kD);
-    m_rightPID.setIZone(kIz);
-    m_rightPID.setFF(kFF);
-    m_rightPID.setOutputRange(kMinOutput, kMaxOutput);
+    m_rightPID.setP(DriveConstants.kP);
+    m_rightPID.setI(DriveConstants.kI);
+    m_rightPID.setD(DriveConstants.kD);
+    m_rightPID.setIZone(DriveConstants.kIz);
+    m_rightPID.setFF(DriveConstants.kFF);
+    m_rightPID.setOutputRange(DriveConstants.kMinOutput, DriveConstants.kMaxOutput);
 
     m_odometry =
         new DifferentialDriveOdometry(
@@ -147,16 +135,6 @@ public class DriveSubsystem extends SubsystemBase {
    * @param speeds The desired wheel speeds.
    */
   public void setSpeeds(DifferentialDriveWheelSpeeds speeds) {
-    // final double leftFeedforward = m_feedforward.calculate(speeds.leftMetersPerSecond);
-    // final double rightFeedforward = m_feedforward.calculate(speeds.rightMetersPerSecond);
-
-    // final double leftOutput =
-    //     m_leftPID.calculate(m_leftEncoder.getVelocity(), speeds.leftMetersPerSecond);
-    // final double rightOutput =
-    //     m_rightPID.calculate(m_rightEncoder.getVelocity(), speeds.rightMetersPerSecond);
-    // m_leftMotors.setVoltage(leftOutput); // + leftFeedforward);
-    // m_rightMotors.setVoltage(rightOutput); // + rightFeedforward);
-
     // Velocity reference only takes RPM!
     m_leftPID.setReference(speeds.leftMetersPerSecond/DriveConstants.kEncoderVelocityFactor, CANSparkMax.ControlType.kVelocity);
     m_rightPID.setReference(-speeds.rightMetersPerSecond/DriveConstants.kEncoderVelocityFactor, CANSparkMax.ControlType.kVelocity);
@@ -165,12 +143,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Motor Command", speeds.leftMetersPerSecond);
     SmartDashboard.putNumber("Motor Out", leftFrontSparkMax.getAppliedOutput());
-    SmartDashboard.putNumber("Follower Out", leftRearSparkMax.getAppliedOutput());
     SmartDashboard.putNumber("Motor Velocity", m_leftEncoder.getVelocity());
-    SmartDashboard.putNumber("Motor Vel Factor", m_leftEncoder.getVelocityConversionFactor());
-    SmartDashboard.putNumber("Motor Counts", m_leftEncoder.getCountsPerRevolution());
-    SmartDashboard.putBoolean("Left Invert", m_leftEncoder.getInverted());
-    SmartDashboard.putBoolean("Right Invert", m_rightEncoder.getInverted());
   }
 
   /**
@@ -262,24 +235,6 @@ public class DriveSubsystem extends SubsystemBase {
     return -m_rightEncoder.getVelocity();
   }
 
-  /**
-   * Returns the left encoder distance.
-   *
-   * @return the left encoder distance
-   */
-  public double getLeftEncoderDistance() {
-    return m_leftEncoder.getPosition();
-  }
-
-  /**
-   * Returns the right encoder distance.
-   *
-   * @return the right encoder distance
-   */
-  public double getRightEncoderDistance() {
-    return m_rightEncoder.getPosition();
-  }
-
   /** Resets the drive encoders. */
   public void resetEncoders() {
     m_leftEncoder.setPosition(0);
@@ -300,7 +255,7 @@ public class DriveSubsystem extends SubsystemBase {
    *
    * @param maxOutput the maximum output to which the drive will be constrained
    */
-  public void setMaxOutput(double maxOutput) {
-    m_drive.setMaxOutput(maxOutput);
-  }
+  // public void setMaxOutput(double maxOutput) {
+  //   m_drive.setMaxOutput(maxOutput);  // Does not work if driving by velocity settings
+  // }
 }

@@ -8,12 +8,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.DriveDistProfiled;
-// import frc.robot.commands.DriveDistProfiled;
-import frc.robot.commands.DriveDistance;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -50,9 +47,9 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Drive at half speed when the right bumper is held
-    new JoystickButton(m_driverController, OIConstants.kButtonRightBumper)
-        .onTrue(new InstantCommand(() -> m_robotDrive.setMaxOutput(0.2)))
-        .onFalse(new InstantCommand(() -> m_robotDrive.setMaxOutput(DriveConstants.kMaxDriveOutput)));
+    // new JoystickButton(m_driverController, OIConstants.kButtonRightBumper)
+    //     .onTrue(new InstantCommand(() -> m_robotDrive.setMaxOutput(0.2)))
+    //     .onFalse(new InstantCommand(() -> m_robotDrive.setMaxOutput(DriveConstants.kMaxDriveOutput)));
 
     // Drive forward by 1.5 meters when the 'A' button is pressed, with a timeout of 5 seconds
     // new JoystickButton(m_driverController, OIConstants.kButtonA)

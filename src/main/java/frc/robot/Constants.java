@@ -27,11 +27,8 @@ public final class Constants {
     public static final double kWheelDiameterInches = 6.0;
     public static final double kGearRatio = 8.45;
     public static final double kWheelDiameterMeters = kWheelDiameterInches * kConvertInchToMeter;
-    // public static final double kEncoderDistancePerPulse =
-    //     // Assumes the encoders are directly mounted on the wheel shafts
-    //     (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
     public static final double kUnitsPerRotation = (kWheelDiameterMeters * Math.PI);  // !!! Use this value in SysID!
-    public static final double kEncoderDistancePerRevolution = (kWheelDiameterMeters * Math.PI) / (kGearRatio);  // Why do we have to square the gear ratio?
+    public static final double kEncoderDistancePerRevolution = (kWheelDiameterMeters * Math.PI) / (kGearRatio);
 
     public static final double kEncoderVelocityFactor = kEncoderDistancePerRevolution/60.0; // Convert RPM to meters/second
 
@@ -39,19 +36,20 @@ public final class Constants {
     public static final double kMoveI = 0;
     public static final double kMoveD = 0;
 
+    // SparkMax Velocity PID
+    public static final double kP = 0.00001;
+    public static final double kI = 0;
+    public static final double kD = 0; 
+    public static final double kIz = 0; 
+    public static final double kFF = 0.00018;
+    public static final double kMaxOutput = 1; 
+    public static final double kMinOutput = -1;
+    // double maxRPM = 5700;
+
     public static final double kMaxDriveOutput = 0.4;  // range 0 to 1
 
     public static final double kMaxSpeedMetersPerSecond = 0.5;
     public static final double kMaxAccelerationMetersPerSecondSquared = 0.4;
-
-    public static final double kVelocityRatio = 1/kGearRatio;  // Motor spins kGearRatio times before output wheel turns once.
-
-    // SysID file used: C:\Users\FabLab9\FRC2024\ThomasCanTrack\sysid_data\sysid_data20231029-134230.json
-    public static final double ksVolts = 0.11161; // Don't change!
-    public static final double kvVoltSecondsPerMeter = 2.2496; // Don't change!
-    public static final double kaVoltSecondsSquaredPerMeter = 0.346; // Don't change!
-
-    public static final double kPDriveVel = 0.001; // Don't change!
   }
 
   public static final class OIConstants {
