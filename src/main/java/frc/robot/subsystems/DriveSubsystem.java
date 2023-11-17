@@ -12,11 +12,14 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
+import edu.wpi.first.wpilibj.PowerDistribution;
+
 // import frc.robot.ExampleSmartMotorController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create CAN motor objects
+  private final PowerDistribution m_pdp = new PowerDistribution();
   private CANSparkMax leftFrontSparkMax = new CANSparkMax(DriveConstants.kLeftFrontCAN, MotorType.kBrushless);
   private CANSparkMax leftRearSparkMax = new CANSparkMax(DriveConstants.kLeftRearCAN, MotorType.kBrushless);
   private CANSparkMax rightFrontSparkMax = new CANSparkMax(DriveConstants.kRightFrontCAN, MotorType.kBrushless);
@@ -34,6 +37,11 @@ public class DriveSubsystem extends SubsystemBase {
 
   RelativeEncoder m_leftEncoder = leftFrontSparkMax.getEncoder();
   RelativeEncoder m_rightEncoder = rightFrontSparkMax.getEncoder();
+
+  public void robotInit() {
+    // Put the PDP itself to the dashboard
+    SmartDashboard.putData("PDP", m_pdp);
+  }
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -54,6 +62,14 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("m_rightEncoder", m_rightEncoder.getPosition());
     SmartDashboard.putNumber("leftEncoder(Inch)", m_leftEncoder.getPosition()/DriveConstants.kConvertInchToMeter);
     SmartDashboard.putNumber("rightEncoder(Inch)", m_rightEncoder.getPosition()/DriveConstants.kConvertInchToMeter);
+    double totalpower = m_pdp.getTotalPower();
+    SmartDashboard.putNumber("Total Power", totalpower);
+
+    double temperature = m_pdp.getTemperature();
+    SmartDashboard.putNumber("Current Temperature", temperature);
+
+    double voltage = m_pdp.getVoltage();
+    SmartDashboard.putNumber("Current Voltage", voltage);
   }
 
   /**
