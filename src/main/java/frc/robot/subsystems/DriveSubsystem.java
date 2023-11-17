@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,6 +22,7 @@ public class DriveSubsystem extends SubsystemBase {
   private CANSparkMax leftRearSparkMax = new CANSparkMax(DriveConstants.kLeftRearCAN, MotorType.kBrushless);
   private CANSparkMax rightFrontSparkMax = new CANSparkMax(DriveConstants.kRightFrontCAN, MotorType.kBrushless);
   private CANSparkMax rightRearSparkMax = new CANSparkMax(DriveConstants.kRightRearCAN, MotorType.kBrushless);
+  private final PowerDistribution m_pdp = new PowerDistribution();
 
   // Group the motors on each side
   private final MotorControllerGroup m_leftMotors =
@@ -54,7 +56,10 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("m_rightEncoder", m_rightEncoder.getPosition());
     SmartDashboard.putNumber("leftEncoder(Inch)", m_leftEncoder.getPosition()/DriveConstants.kConvertInchToMeter);
     SmartDashboard.putNumber("rightEncoder(Inch)", m_rightEncoder.getPosition()/DriveConstants.kConvertInchToMeter);
-  }
+  // Retrieves the temperature of the PDP, in degrees Celsius.
+  double temperatureCelsius = m_pdp.getTemperature();
+  SmartDashboard.putNumber("Temperature", temperatureCelsius);
+}
 
   /**
    * Drives the robot using arcade controls.
