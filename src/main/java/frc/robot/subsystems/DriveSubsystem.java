@@ -25,7 +25,6 @@ public class DriveSubsystem extends SubsystemBase {
   private CANSparkMax leftRearSparkMax = new CANSparkMax(DriveConstants.kLeftRearCAN, MotorType.kBrushless);
   private CANSparkMax rightFrontSparkMax = new CANSparkMax(DriveConstants.kRightFrontCAN, MotorType.kBrushless);
   private CANSparkMax rightRearSparkMax = new CANSparkMax(DriveConstants.kRightRearCAN, MotorType.kBrushless);
-  private final PowerDistribution m_pdp = new PowerDistribution(30,PowerDistribution.ModuleType.kCTRE);
 
   // Group the motors on each side
   private final MotorControllerGroup m_leftMotors =
